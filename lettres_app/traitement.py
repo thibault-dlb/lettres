@@ -1,8 +1,8 @@
 """Transformation d'un tracé libre en image 512x512 conforme aux consignes.
 
 Le tracé est redessiné avec un seul facteur d'échelle (aucune déformation) :
-son plus grand côté occupe toute l'image, il touche donc au moins deux bords
-opposés ; l'autre dimension est centrée.
+son plus grand côté (épaisseur du trait comprise) occupe toute l'image sans être
+coupé, il touche donc au moins deux bords opposés ; l'autre dimension est centrée.
 """
 
 from PIL import Image, ImageDraw
@@ -56,8 +56,9 @@ def rendre_image(traits, taille=TAILLE, epaisseur=EPAISSEUR):
     if plus_grand < TAILLE_MINIMALE:
         raise TraceInvalide("Tracé trop petit : dessine la lettre plus grande.")
 
-    echelle = taille / plus_grand
-    # Le plus grand côté va de 0 à taille ; l'autre est centré.
+    # L'axe du trait va de epaisseur/2 à taille - epaisseur/2 : avec l'épaisseur du trait,
+    # l'encre occupe exactement 0..taille, sans que le trait soit coupé par le bord.
+    echelle = (taille - epaisseur) / plus_grand
     decalage_x = (taille - largeur * echelle) / 2
     decalage_y = (taille - hauteur * echelle) / 2
 

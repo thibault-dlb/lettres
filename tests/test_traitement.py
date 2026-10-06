@@ -62,7 +62,7 @@ class TestRendu(unittest.TestCase):
         # L'étendue de l'encre sur le petit côté suit exactement l'échelle du grand côté.
         image = rendre_image(LETTRE_LARGE)
         gauche, haut, droite, bas = etendue_encre(image)
-        echelle = TAILLE / 400
+        echelle = (TAILLE - EPAISSEUR) / 400
         attendu_hauteur = 60 * echelle + EPAISSEUR
         self.assertAlmostEqual(bas - haut, attendu_hauteur, delta=2)
         self.assertEqual((gauche, droite), (0, TAILLE))
@@ -76,6 +76,22 @@ class TestRendu(unittest.TestCase):
             largeurs.append(droite - gauche)
         self.assertLessEqual(abs(largeurs[0] - largeurs[1]), 1)
         self.assertAlmostEqual(largeurs[0], EPAISSEUR, delta=2)
+
+    def test_trait_non_coupe_aux_bords(self):
+        # Les extrémités arrondies du trait doivent être entières : la colonne/ligne de bord
+        # ne contient qu'un petit morceau d'encre, pas toute l'épaisseur aplatie.
+        image = rendre_image([[(0, 0), (0, 300)]])
+        gauche, haut, droite, bas = etendue_encre(image)
+        self.assertEqual((haut, bas), (0, TAILLE))
+        # Un trait vertical centré : largeur d'encre = épaisseur, avec marges égales.
+        self.assertAlmostEqual(droite - gauche, EPAISSEUR, delta=2)
+        self.assertLessEqual(abs(gauche - (TAILLE - droite)), 2)
+        # Bout arrondi complet : la ligne du bord n'a que les pixels du sommet de l'arrondi.
+        encre_sur_bord = sum(1 for x in range(TAILLE) if image.getpixel((x, 0)) < 128)
+        self.assertLess(encre_sur_bord, EPAISSEUR)
+        # ... mais l'arrondi complet est présent juste en dessous.
+        encre_ligne_9 = sum(1 for x in range(TAILLE) if image.getpixel((x, EPAISSEUR // 2)) < 128)
+        self.assertGreaterEqual(encre_ligne_9, EPAISSEUR - 2)
 
     def test_fond_blanc_et_trait_noir(self):
         image = rendre_image(LETTRE_HAUTE)
