@@ -1,6 +1,6 @@
 # Lettres
 
-Logiciel pour créer les images de lettres manuscrites du projet de Machine Learning : 20 images PNG de 512 × 512 pixels pour chacune des lettres **a, b, f, k, j, g**, en respectant automatiquement les consignes.
+Logiciel pour créer les images de lettres manuscrites du projet de Machine Learning : 20 images PNG de 512 × 512 pixels pour chacune des lettres **a, b, f, h, j, g**, en respectant automatiquement les consignes.
 
 ## Lancer
 

@@ -3,7 +3,7 @@
 import os
 import shutil
 
-LETTRES = ["a", "b", "f", "k", "j", "g"]
+LETTRES = ["a", "b", "f", "h", "j", "g"]
 IMAGES_PAR_LETTRE = 20
 DOSSIER_SORTIE = "lettre"
 

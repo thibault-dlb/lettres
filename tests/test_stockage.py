@@ -78,7 +78,7 @@ class TestStockage(unittest.TestCase):
         self.assertEqual(os.listdir(os.path.join(telechargements, "lettre")), [])
 
     def test_ordre_des_lettres(self):
-        self.assertEqual(stockage.LETTRES, ["a", "b", "f", "k", "j", "g"])
+        self.assertEqual(stockage.LETTRES, ["a", "b", "f", "h", "j", "g"])
 
 
 if __name__ == "__main__":
