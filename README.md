@@ -20,6 +20,8 @@ Seul prérequis : **Python 3.8 ou plus récent** avec Tkinter (inclus dans l'ins
 
 Les images sont enregistrées dans le dossier `lettre/` sous les noms `a_01.png` … `g_20.png`. Après un arrêt, relancer le logiciel reprend à la première image manquante ; un fichier existant n'est jamais écrasé.
 
+À la validation de la dernière image (120 au total), le logiciel déplace le dossier `lettre/` dans **Téléchargements** (`lettre_2` si le nom est déjà pris), se ferme et ouvre ce dossier.
+
 ## Ce que le logiciel garantit
 
 | Consigne | Comment |

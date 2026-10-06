@@ -31,7 +31,10 @@ class TestInterface(unittest.TestCase):
         self.app = Application(self.racine, self.dossier)
 
     def tearDown(self):
-        self.racine.destroy()
+        try:
+            self.racine.destroy()
+        except tk.TclError:  # déjà fermée par l'application
+            pass
         self._tmp.cleanup()
 
     def test_demarre_sur_a_01_sans_apercu(self):
@@ -85,14 +88,42 @@ class TestInterface(unittest.TestCase):
         app = Application(self.racine, self.dossier)
         self.assertEqual((app.lettre, app.numero), ("b", 2))
 
-    def test_ecran_final(self):
+    def _remplir(self):
         image = Image.new("L", (512, 512), 255)
         for lettre in stockage.LETTRES:
             for numero in range(1, 21):
                 stockage.enregistrer(image, self.dossier, lettre, numero)
-        app = Application(self.racine, self.dossier)
+
+    def test_fin_deplace_dans_telechargements_ouvre_et_ferme(self):
+        self._remplir()
+        telechargements = os.path.join(self._tmp.name, "Downloads")
+        ouverts = []
+        app = Application(
+            self.racine, self.dossier, ouvrir=ouverts.append, telechargements=telechargements
+        )
         self.assertIsNone(app.lettre)
         self.assertIn("Terminé", app.titre["text"])
+        app._terminer()
+        cible = os.path.join(telechargements, "lettre")
+        self.assertFalse(os.path.exists(self.dossier))
+        self.assertEqual(len(os.listdir(cible)), 120)
+        self.assertEqual(ouverts, [cible])
+        with self.assertRaises(tk.TclError):  # la fenêtre est fermée
+            self.racine.winfo_exists()
+            self.racine.title()
+
+    def test_derniere_validation_declenche_la_fin(self):
+        self._remplir()
+        os.remove(os.path.join(self.dossier, "g_20.png"))
+        telechargements = os.path.join(self._tmp.name, "Downloads")
+        app = Application(
+            self.racine, self.dossier, ouvrir=lambda d: None, telechargements=telechargements
+        )
+        self.assertEqual((app.lettre, app.numero), ("g", 20))
+        dessiner(app, [(100, 50), (100, 300)])
+        app.continuer()
+        self.assertIsNone(app.lettre)
+        self.assertTrue(os.path.isfile(os.path.join(self.dossier, "g_20.png")))
 
 
 if __name__ == "__main__":

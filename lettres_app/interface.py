@@ -36,9 +36,11 @@ def ouvrir_dossier(dossier):
 
 
 class Application:
-    def __init__(self, racine, dossier):
+    def __init__(self, racine, dossier, ouvrir=ouvrir_dossier, telechargements=None):
         self.racine = racine
         self.dossier = dossier
+        self._ouvrir = ouvrir
+        self._telechargements = telechargements
         self.traits = []
         self.trait_courant = None
         self.image_apercu = None
@@ -131,15 +133,27 @@ class Application:
         total = len(stockage.LETTRES) * stockage.IMAGES_PAR_LETTRE
         self.titre.config(text="Terminé !")
         self.progression.config(text=f"{total}/{total} images enregistrées")
-        self._dire(f"Les images sont dans le dossier « {self.dossier} ».", OK)
-        self.bouton_retour.config(state="disabled")
-        self.bouton_annuler.config(state="disabled")
-        self.bouton_continuer.config(
-            text="Ouvrir le dossier", state="normal", command=lambda: ouvrir_dossier(self.dossier)
-        )
+        self._dire("Déplacement des images dans le dossier Téléchargements...", OK)
+        for bouton in (self.bouton_retour, self.bouton_annuler, self.bouton_continuer):
+            bouton.config(state="disabled")
         self.racine.unbind("<Return>")
         self.racine.unbind("<Escape>")
         self.zone_dessin.unbind("<ButtonPress-1>")
+        self.racine.after(600, self._terminer)
+
+    def _terminer(self):
+        """Déplace le dossier dans Téléchargements, l'ouvre, puis ferme l'application."""
+        try:
+            self.dossier = stockage.deplacer_vers_telechargements(
+                self.dossier, self._telechargements
+            )
+        except OSError as erreur:
+            self._dire(
+                f"Déplacement impossible ({erreur}). Les images restent dans « {self.dossier} ».",
+                ERREUR,
+            )
+        self._ouvrir(self.dossier)
+        self.racine.destroy()
 
     # ----- dessin -----
 

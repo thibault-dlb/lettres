@@ -61,6 +61,22 @@ class TestStockage(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             stockage.enregistrer(self.image, self.dossier, "a", 1)
 
+    def test_deplacement_vers_telechargements(self):
+        stockage.enregistrer(self.image, self.dossier, "a", 1)
+        telechargements = os.path.join(self._tmp.name, "Downloads")
+        cible = stockage.deplacer_vers_telechargements(self.dossier, telechargements)
+        self.assertEqual(cible, os.path.join(telechargements, "lettre"))
+        self.assertTrue(os.path.isfile(os.path.join(cible, "a_01.png")))
+        self.assertFalse(os.path.exists(self.dossier))
+
+    def test_deplacement_sans_ecraser_un_dossier_existant(self):
+        telechargements = os.path.join(self._tmp.name, "Downloads")
+        os.makedirs(os.path.join(telechargements, "lettre"))
+        stockage.enregistrer(self.image, self.dossier, "a", 1)
+        cible = stockage.deplacer_vers_telechargements(self.dossier, telechargements)
+        self.assertEqual(cible, os.path.join(telechargements, "lettre_2"))
+        self.assertEqual(os.listdir(os.path.join(telechargements, "lettre")), [])
+
     def test_ordre_des_lettres(self):
         self.assertEqual(stockage.LETTRES, ["a", "b", "f", "k", "j", "g"])
 

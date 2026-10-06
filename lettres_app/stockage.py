@@ -1,6 +1,7 @@
 """Nommage des fichiers, dossier de sortie et reprise du parcours."""
 
 import os
+import shutil
 
 LETTRES = ["a", "b", "f", "k", "j", "g"]
 IMAGES_PAR_LETTRE = 20
@@ -41,3 +42,24 @@ def enregistrer(image, dossier, lettre, numero):
         raise FileExistsError(f"{nom_fichier(lettre, numero)} existe déjà.")
     image.save(chemin, format="PNG")
     return chemin
+
+
+def dossier_telechargements():
+    return os.path.join(os.path.expanduser("~"), "Downloads")
+
+
+def deplacer_vers_telechargements(dossier, telechargements=None):
+    """Déplace le dossier dans Téléchargements et retourne son nouveau chemin.
+
+    Si un dossier du même nom existe déjà, un suffixe est ajouté : lettre_2, lettre_3...
+    """
+    cible_parent = telechargements or dossier_telechargements()
+    os.makedirs(cible_parent, exist_ok=True)
+    nom = os.path.basename(os.path.normpath(dossier))
+    cible = os.path.join(cible_parent, nom)
+    compteur = 2
+    while os.path.exists(cible):
+        cible = os.path.join(cible_parent, f"{nom}_{compteur}")
+        compteur += 1
+    shutil.move(dossier, cible)
+    return cible
