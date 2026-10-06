@@ -13,10 +13,16 @@ from .traitement import TAILLE, TraceInvalide, rendre_image
 TAILLE_AFFICHAGE = 420  # taille à l'écran des deux zones (l'image enregistrée fait 512x512)
 EPAISSEUR_ECRAN = 6
 
-FOND = "#fdf6e3"
-TEXTE = "#073642"
+# Palette Solarized Dark (pdf-theme-solarized-dark.css)
+FOND = "#002b36"
+PANNEAU = "#073642"
+BORDURE = "#586e75"
+TEXTE = "#93a1a1"
+TITRE = "#fdf6e3"
+ACCENT = "#2aa198"
+ACCENT_ACTIF = "#268bd2"
 ERREUR = "#dc322f"
-OK = "#2d7a2d"
+OK = "#859900"
 
 
 def ouvrir_dossier(dossier):
@@ -44,7 +50,7 @@ class Application:
         racine.configure(bg=FOND)
         racine.resizable(False, False)
 
-        self.titre = tk.Label(racine, font=("Segoe UI", 18, "bold"), bg=FOND, fg=TEXTE)
+        self.titre = tk.Label(racine, font=("Segoe UI", 18, "bold"), bg=FOND, fg=TITRE)
         self.titre.pack(pady=(12, 0))
         self.progression = tk.Label(racine, font=("Segoe UI", 10), bg=FOND, fg=TEXTE)
         self.progression.pack()
@@ -56,31 +62,37 @@ class Application:
 
         self.zone_dessin = tk.Canvas(
             zones, width=TAILLE_AFFICHAGE, height=TAILLE_AFFICHAGE,
-            bg="white", highlightthickness=1, highlightbackground=TEXTE, cursor="pencil",
+            bg="white", highlightthickness=1, highlightbackground=BORDURE, cursor="pencil",
         )
         self.zone_dessin.grid(row=1, column=0, padx=8)
         self.zone_apercu = tk.Canvas(
             zones, width=TAILLE_AFFICHAGE, height=TAILLE_AFFICHAGE,
-            bg="#eeeeee", highlightthickness=1, highlightbackground=TEXTE,
+            bg="white", highlightthickness=1, highlightbackground=BORDURE,
         )
         self.zone_apercu.grid(row=1, column=1, padx=8)
 
-        self.message = tk.Label(racine, font=("Segoe UI", 10), bg=FOND, fg=TEXTE)
+        self.message = tk.Label(racine, font=("Segoe UI", 10), bg=FOND, fg=TEXTE, wraplength=840)
         self.message.pack()
 
+        style_bouton = dict(
+            bg=PANNEAU, fg=TITRE, activebackground=BORDURE, activeforeground=TITRE,
+            disabledforeground=BORDURE, relief="flat", bd=0, padx=10, pady=5,
+        )
         boutons = tk.Frame(racine, bg=FOND)
         boutons.pack(pady=(4, 14))
         self.bouton_retour = tk.Button(
-            boutons, text="Effacer le dernier trait (Ctrl+Z)", command=self.annuler_dernier_trait
+            boutons, text="Effacer le dernier trait (Ctrl+Z)",
+            command=self.annuler_dernier_trait, **style_bouton,
         )
         self.bouton_retour.grid(row=0, column=0, padx=6)
         self.bouton_annuler = tk.Button(
-            boutons, text="Annuler (Échap)", command=self.annuler
+            boutons, text="Annuler (Échap)", command=self.annuler, **style_bouton
         )
         self.bouton_annuler.grid(row=0, column=1, padx=6)
         self.bouton_continuer = tk.Button(
-            boutons, text="Continuer (Entrée)", command=self.continuer,
-            bg="#2aa198", fg="white", activebackground="#268bd2", state="disabled",
+            boutons, text="Continuer (Entrée)", command=self.continuer, state="disabled",
+            **{**style_bouton, "bg": ACCENT, "fg": FOND, "activebackground": ACCENT_ACTIF,
+               "activeforeground": FOND},
         )
         self.bouton_continuer.grid(row=0, column=2, padx=6)
 
